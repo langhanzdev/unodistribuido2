@@ -3,8 +3,7 @@ import java.rmi.RemoteException;
 
 // Interface remota para o exemplo "Hello, world!"
 public interface UnoInterface extends Remote {
-	// Metodo invocavel remotamente que retorna a mensagem do objeto remoto
-	public String say() throws RemoteException;
+	
 
 	public int registraJogador(String nome) throws RemoteException;
 	public int encerraPartida(int id) throws RemoteException;

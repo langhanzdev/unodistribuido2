@@ -19,10 +19,6 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         message = msg;
     }
 
-    // Implementa o metodo invocavel remotamente, que retorna a mensagem armazenada no objeto
-    public String say() throws RemoteException {
-        return message;
-    }
     
     public int geraIdPartida(){
         this.idPartidas++;
@@ -124,8 +120,10 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                 return 0;
             }
             if(this.partidas[partida].getJogador1().getId() == idJogador){
+                this.partidas[partida].preparaJogo();
                 return 1;
             }else if(this.partidas[partida].getJogador2().getId() == idJogador){
+                this.partidas[partida].preparaJogo();
                 return 2;
             }
         }

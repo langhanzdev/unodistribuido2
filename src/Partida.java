@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Partida{
@@ -8,20 +9,67 @@ public class Partida{
     private Jogador jogador2;
     private int[] baralho;
     private int numCartas;
+    private final int totalCartas;
     private int numDescarte;
     private int[] descarte;
     private int corAtiva;
     private int vez;
     private int id;
+    private Random gerador;
+    private boolean temBaralho;
 
     public Partida() {
         this.numCartas = 108;
-        this.baralho = new int[this.numCartas];
-        this.descarte = new int[this.numCartas];
+        this.totalCartas = 108;
+        this.baralho = new int[this.totalCartas];
+        this.descarte = new int[this.totalCartas];
         this.numDescarte = 0;
+        this.temBaralho = false;
     }
     
+    public void distribuiCartas(){
+        for(int i=0;i<7;i++){
+            compraCarta(1);
+            compraCarta(2);
+        }
+    }
     
+    public void preparaJogo(){
+        if(!this.temBaralho){
+            geraBaralho();
+            embaralha();
+            distribuiCartas();
+        }
+        this.temBaralho = true;
+    }
+    
+    public void geraBaralho(){
+        // Inicializacao do gerador de numeros aleatorios
+        this.gerador = new Random(jogador1.getId()+jogador2.getId());
+        
+        // Criacao do baralho com as 108 cartas
+        for (int i=0;i<totalCartas;++i)
+            baralho[i] = i;
+        
+    }
+    
+    public void embaralha(){
+        // Embaralhamento
+        for (int c=0;c<totalCartas;++c) { 
+            int outra = gerador.nextInt(totalCartas); 
+            int aux = baralho[c]; 
+            baralho[c] = baralho[outra]; 
+            baralho[outra] = aux; 
+        } 
+        for (int c=0;c<totalCartas*totalCartas;c++) { 
+            int c1 = gerador.nextInt(totalCartas); 
+            int c2 = gerador.nextInt(totalCartas); 
+            int aux = baralho[c1]; 
+            baralho[c1] = baralho[c2]; 
+            baralho[c2] = aux; 
+        } 
+        
+    }
     
     public int compraCarta(int nrJogador){
         if(nrJogador == 1){

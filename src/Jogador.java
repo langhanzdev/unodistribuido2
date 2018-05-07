@@ -10,9 +10,11 @@ public class Jogador{
     public Jogador(String nome, int id) {
         this.nome = nome;
         this.id = id;
+        this.cartas = new ArrayList<>();
     }
 
     public Jogador() {
+        this.cartas = new ArrayList<>();
     }
     
     public int compraCarta(int carta){
