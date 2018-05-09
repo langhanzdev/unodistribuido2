@@ -253,7 +253,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         int partida = encontraPartida(idJogador);
         if(partida > -1){
             int nrJogador = identificaJogador(partida, idJogador);
-            return this.partidas[partida].compraCarta(idJogador);
+            return this.partidas[partida].compraCarta(nrJogador);
         }
         return -1;
     }

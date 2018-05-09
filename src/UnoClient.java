@@ -59,6 +59,7 @@ class UnoClient {
         Scanner entrada = new Scanner (System.in);
         int jogou= -5;
         int ehMinhaVez = 0;
+        boolean comprou = false;
         
         String nomeOponente = uno.obtemOponente(jogador.getId());
         System.out.println("Seu oponente é "+nomeOponente);
@@ -79,12 +80,12 @@ class UnoClient {
             
             System.out.println("Cartas do baralho: "+nrCartasBaralho);
             System.out.println("Cartas do oponente: "+nrCartasOponente);
-            System.out.println("Você tem "+nrCartas+" cartas.");
+            System.out.println("Suas cartas: "+nrCartas);
             String mao = uno.mostraMao(jogador.getId());
             if(mao.equals(""))
                 System.out.println("Erro ao buscar cartas da mão.");
             else
-                System.out.println("Suas Cartas: "+mao);
+                System.out.println("Suas mão: "+mao);
 
             String cartaMesa = uno.obtemCartaMesa(jogador.getId());
             if(cartaMesa.equals("")){
@@ -126,40 +127,65 @@ class UnoClient {
 
             //Joga carta
             int opcao;
-
+            int limiteMax, limiteMin;
 
             if(ehMinhaVez == 1){
-               do{
+                
                 do{
-                    System.out.println("Escolha uma carta de 0 a "+(nrCartas-1)+" para jogar ou 0 para comprar. ");
-
-                    opcao = entrada.nextInt();
-                    if(opcao < 0 || opcao > nrCartas){
-                        System.out.println("Opção invalida.");
-                    }
-                }while(opcao < 0 || opcao > nrCartas);
-
-                String[] splitMao = mao.split("|");
-                int cor = 0;
-                if(splitMao[opcao].equals("Cg/*") || splitMao[opcao].equals("C4/*")){
+                    
                     do{
-                        System.out.println("Escola uma cor: ");
-                        System.out.println("0 - Azul ");
-                        System.out.println("1 - Amarelo ");
-                        System.out.println("2 - Verde ");
-                        System.out.println("3 - Vermelho");
-                        cor = entrada.nextInt();
-                        if(cor < 0 || cor > 3)
-                            System.out.println("Cor invalida.");
-                    }while(cor < 0 || cor > 3);
-                }
+                        if(comprou){
+                            System.out.println("Você só pode jogar a carta comprada(0) ou comprar(1)");
+                            limiteMax = 1;
+                            limiteMin = 0;
+                            
+                        }else{
+                            System.out.println("Escolha uma carta de (0) a ("+(nrCartas-1)+") para jogar ou ("+(nrCartas)+") para comprar. ");
+                            limiteMax = nrCartas;
+                            limiteMin = 0;
+                        }
+                        opcao = entrada.nextInt();
+                        if(opcao < limiteMin || opcao > limiteMax){
+                            System.out.println("Opção invalida.");
+                        }
+                        
+                        
+                    }while(opcao < limiteMin || opcao > limiteMax);
 
-                jogou = uno.jogaCarta(jogador.getId(), opcao, cor);
-                System.out.println("Joga carta "+jogou);
-                if(jogou == 0){
-                    System.out.println("Jogada inválida: carta inválida.");
-                }
-            }while(jogou != 1);
+                    if(opcao == limiteMax){ //Compra carta
+                        if(uno.compraCarta(jogador.getId()) == -1){
+                            System.out.println("Erro ao comprar a carta");
+                        }else{
+                            comprou = true;
+                        }
+                    }else{
+                        
+                        String[] splitMao = mao.split("|");
+                        int cor = 0;
+                        if(splitMao[opcao].equals("Cg/*") || splitMao[opcao].equals("C4/*")){
+                            do{
+                                System.out.println("Escola uma cor: ");
+                                System.out.println("0 - Azul ");
+                                System.out.println("1 - Amarelo ");
+                                System.out.println("2 - Verde ");
+                                System.out.println("3 - Vermelho");
+                                cor = entrada.nextInt();
+                                if(cor < 0 || cor > 3)
+                                    System.out.println("Cor invalida.");
+                            }while(cor < 0 || cor > 3);
+                        }
+
+                        if(comprou){
+                            opcao = nrCartas-1;
+                        }
+                        jogou = uno.jogaCarta(jogador.getId(), opcao, cor);
+                        System.out.println("Joga carta "+jogou);
+                        if(jogou == 0){
+                            System.out.println("Jogada inválida: carta inválida.");
+                        }
+                        comprou = false;
+                    }
+                }while(jogou != 1 && !comprou);
 
             }else{
                 System.out.println("Aguardando adversário jogar...");
