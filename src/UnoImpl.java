@@ -266,7 +266,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         int nrJogador = identificaJogador(partida, idJogador);
         System.out.println("Cor: "+cor);
         if(temPartida(idJogador) == 0) return -2;
-//        if(cor < 0 || cor > 3) return -3;
+        if(cor < 0 || cor > 3) return -3;
         
         if(this.partidas[partida].getVez() != nrJogador) return -4;
         
@@ -276,7 +276,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             carta = this.partidas[partida].getJogador2().getCartas().get(indexCarta);
         }
         
-        
+        boolean mesmaCor = false;
         
         if(partida > -1){
             
@@ -284,16 +284,32 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             
             System.out.println("carta "+carta+" Topo "+topoDescarte);
             if(carta >=0 && carta <=24 && topoDescarte >=0 && topoDescarte <=24){ //Azul
-                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                mesmaCor = true;
             }else
             if(carta >=25 && carta <=49 && topoDescarte >=25 && topoDescarte <=49){//Amarela 
-                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                mesmaCor = true;
             }else
             if(carta >=50 && carta <=74 && topoDescarte >=50 && topoDescarte <=74){//Verde
-                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                mesmaCor = true;
             }else
             if(carta >=75 && carta <=99 && topoDescarte >=75 && topoDescarte <=99){//Vermelha
-                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                mesmaCor = true;
+            }
+            
+            if(mesmaCor){
+                int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                if(ehMais2(carta)){
+                    if(nrJogador == 1){
+                        this.partidas[partida].compraCarta(2);
+                        this.partidas[partida].compraCarta(2);
+                        this.partidas[partida].setVez(1);
+                    }else{
+                        this.partidas[partida].compraCarta(1);
+                        this.partidas[partida].compraCarta(1);
+                        this.partidas[partida].setVez(2);
+                    }
+                }
+                return retornoJoga;
             }
             
             int soma;
@@ -328,6 +344,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
            
         }
         return 0;
+    }
+    
+    public boolean ehMais2(int carta){
+        if(carta == 23 || carta == 24 || carta == 49 || carta == 48 || carta == 74 || carta == 73 || carta == 98 || carta == 99)
+            return true;
+        return false;
     }
     
     public int inverte(int s){
