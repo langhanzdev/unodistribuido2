@@ -57,7 +57,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         for(int i=0;i<this.nrPartidas;i++){
             if(partidas[i] != null){
                 if(partidas[i].getJogador2() == null){
-                    partidas[i].setJogador2(j);
+                    partidas[i].setJogador2(j);System.out.println("registra jogador 2 "+j.getNome()+" "+i);
                     return true;
                 }
             }
@@ -69,20 +69,20 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                 Partida p = new Partida();
                 p.setJogador1(j);
                 p.setId(geraIdPartida());
-                partidas[i] = p;
+                partidas[i] = p;System.out.println("registra jogador 1 "+j.getNome()+" "+i);
                 return true;
             }
         }
         return false;
     }
     
-    public int identificaJogador(Partida partida, int idJogador){
-        if(partida.getJogador1() != null){
-            if(partida.getJogador1().getId() == idJogador)
+    public int identificaJogador(int partida, int idJogador){
+        if(this.partidas[partida].getJogador1() != null){
+            if(this.partidas[partida].getJogador1().getId() == idJogador)
                 return 1;
         }
-        if(partida.getJogador2() != null){
-            if(partida.getJogador2().getId() == idJogador)
+        if(this.partidas[partida].getJogador2() != null){
+            if(this.partidas[partida].getJogador2().getId() == idJogador)
                 return 2;
         }
         return 0;
@@ -121,9 +121,11 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             }
             if(this.partidas[partida].getJogador1().getId() == idJogador){
                 this.partidas[partida].preparaJogo();
+                
                 return 1;
             }else if(this.partidas[partida].getJogador2().getId() == idJogador){
                 this.partidas[partida].preparaJogo();
+                
                 return 2;
             }
         }
@@ -135,7 +137,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     public String obtemOponente(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
         if(partida > -1){
-            int nrJogador = identificaJogador(this.partidas[partida], idJogador);
+            int nrJogador = identificaJogador(partida, idJogador);
             if(nrJogador == 1){
                 if(this.partidas[partida].getJogador2() == null){
                     return "";
@@ -156,12 +158,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     
 
     @Override
-    public int ehMinhaVez(int idjogador) throws RemoteException {
-        int partida = encontraPartida(idjogador);
-        if(temPartida(idjogador) == 0) return -2; //Não há dois jogadores
+    public int ehMinhaVez(int idJogador) throws RemoteException {
+        int partida = encontraPartida(idJogador);
+        if(temPartida(idJogador) == 0) return -2; //Não há dois jogadores
         
         if(partida > -1){
-            int nrJogador = identificaJogador(this.partidas[partida], idjogador);
+            int nrJogador = identificaJogador(partida, idJogador);
             if(nrJogador == this.partidas[partida].getVez()){
                 return 1; //Sim
             }else{
@@ -184,7 +186,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     public int obtemNumCartas(int idJogador) throws RemoteException {
         if(temPartida(idJogador) == 0) return -2;
         int partida = encontraPartida(idJogador);
-        int nrJogador = identificaJogador(this.partidas[partida], idJogador);
+        int nrJogador = identificaJogador(partida, idJogador);
         if(nrJogador == 1){
             return this.partidas[partida].getJogador1().getCartas().size();
         }
@@ -198,7 +200,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     public int obtemNumCartasOponente(int idJogador) throws RemoteException {
         if(temPartida(idJogador) == 0) return -2;
         int partida = encontraPartida(idJogador);
-        int nrJogador = identificaJogador(this.partidas[partida], idJogador);
+        int nrJogador = identificaJogador(partida, idJogador);
         if(nrJogador == 1){
             return this.partidas[partida].getJogador2().getCartas().size();
         }
@@ -211,7 +213,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     @Override
     public String mostraMao(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
-        int nrJogador = identificaJogador(this.partidas[partida], idJogador);
+        int nrJogador = identificaJogador(partida, idJogador);
         String mao = "";
         ArrayList<Integer> cartasMao;
         if(nrJogador == 1){
@@ -248,29 +250,86 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     public int compraCarta(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
         if(partida > -1){
-            int nrJogador = identificaJogador(this.partidas[partida], idJogador);
+            int nrJogador = identificaJogador(partida, idJogador);
             return this.partidas[partida].compraCarta(idJogador);
         }
         return -1;
     }
 
     @Override
-    public int jogaCarta(int idJogador, int carta, int cor) throws RemoteException {
+    public int jogaCarta(int idJogador, int indexCarta, int cor) throws RemoteException {
         
+        int carta;
         int partida = encontraPartida(idJogador);
-        int nrJogador = identificaJogador(this.partidas[partida], idJogador);
-        
+        int nrJogador = identificaJogador(partida, idJogador);
+        System.out.println("Cor: "+cor);
         if(temPartida(idJogador) == 0) return -2;
-        if(cor >= 0 && cor <= 3) return -3;
+//        if(cor < 0 || cor > 3) return -3;
         
         if(this.partidas[partida].getVez() != nrJogador) return -4;
         
+        if(nrJogador == 1){
+            carta = this.partidas[partida].getJogador1().getCartas().get(indexCarta);
+        }else{
+            carta = this.partidas[partida].getJogador2().getCartas().get(indexCarta);
+        }
+        
         if(partida > -1){
             
-            return this.partidas[partida].jogaCarta(carta, cor, nrJogador);
+            int topoDescarte = this.partidas[partida].getTopoDescarte();
+            System.out.println("carta "+carta+" Topo "+topoDescarte);
+            if(carta >=0 && carta <=24 && topoDescarte >=0 && topoDescarte <=24){ //Azul
+                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+            }else
+            if(carta >=25 && carta <=49 && topoDescarte >=25 && topoDescarte <=49){//Amarela 
+                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+            }else
+            if(carta >=50 && carta <=74 && topoDescarte >=50 && topoDescarte <=74){//Verde
+                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+            }else
+            if(carta >=75 && carta <=99 && topoDescarte >=75 && topoDescarte <=99){//Vermelha
+                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+            }
             
+            int soma;
+            
+            if(carta % 2 == 0)
+                soma = -1;
+            else
+                soma = 1;
+            
+            if((carta >= 25 && carta <= 49) || (carta >= 75 && carta <= 99)){
+                soma = inverte(soma);
+            }
+            
+            if(carta+soma == topoDescarte)
+                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+            
+            int cartaAux = carta;
+            int proximo;
+            if(carta < topoDescarte){
+                proximo = 25;
+            }else{
+                proximo = -25;
+            }
+            
+            while(cartaAux+proximo < 99 && cartaAux+proximo > 0){
+                if(cartaAux+25 == topoDescarte || cartaAux+25+soma == topoDescarte){
+                    return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                }
+                cartaAux += 25;
+                soma = inverte(soma);
+            }
+           
         }
-        return -1;
+        return 0;
+    }
+    
+    public int inverte(int s){
+        if(s == 1)
+            return -1;
+        else
+            return 1;
     }
 
     @Override
