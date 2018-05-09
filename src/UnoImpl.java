@@ -319,10 +319,10 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             }
             
             while(cartaAux+proximo < 99 && cartaAux+proximo > 0){
-                if(cartaAux+25 == topoDescarte || cartaAux+25+soma == topoDescarte){
+                if(cartaAux+proximo == topoDescarte || cartaAux+proximo+soma == topoDescarte){
                     return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 }
-                cartaAux += 25;
+                cartaAux += proximo;
                 soma = inverte(soma);
             }
            
