@@ -39,7 +39,7 @@ public class Partida{
             geraBaralho();
             embaralha();
             distribuiCartas();
-            this.descarte[++numDescarte] = baralho[--numCartas];
+            this.descarte[numDescarte] = baralho[--numCartas];
             setVez(1);
         }
         this.temBaralho = true;
@@ -89,14 +89,14 @@ public class Partida{
         
         if(nrJogador == 1){
             if(carta < 0 || carta >= this.jogador1.getCartas().size()) return -3;
-            this.descarte[this.numDescarte] = this.jogador1.jogaCarta(carta);
             this.numDescarte++;
+            this.descarte[this.numDescarte] = this.jogador1.jogaCarta(carta);
             this.setVez(2);
             return 1;
         }else{
             if(carta < 0 || carta >= this.jogador2.getCartas().size()) return -3;
-            this.descarte[this.numDescarte] = this.jogador2.jogaCarta(carta);
             this.numDescarte++;
+            this.descarte[this.numDescarte] = this.jogador2.jogaCarta(carta);
             this.setVez(1);
             return 1;
         }
@@ -132,10 +132,10 @@ public class Partida{
 
     
     
-    public int topoDescarte(){
-        if(this.numDescarte == 0) return -1;
-        return this.descarte[numDescarte];
-    }
+//    public int topoDescarte(){
+//        if(this.numDescarte == 0) return -1;
+//        return this.descarte[numDescarte];
+//    }
 
     public int getCorAtiva() {
         return corAtiva;

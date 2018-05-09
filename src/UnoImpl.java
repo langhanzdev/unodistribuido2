@@ -231,9 +231,11 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     @Override
     public String obtemCartaMesa(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
+
         if(partida > -1){
-            return dicionarioCartas(this.partidas[partida].topoDescarte());
+            return dicionarioCartas(this.partidas[partida].getTopoDescarte());
         }
+        
         return "";
     }
 
@@ -274,9 +276,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             carta = this.partidas[partida].getJogador2().getCartas().get(indexCarta);
         }
         
+        
+        
         if(partida > -1){
             
             int topoDescarte = this.partidas[partida].getTopoDescarte();
+            
             System.out.println("carta "+carta+" Topo "+topoDescarte);
             if(carta >=0 && carta <=24 && topoDescarte >=0 && topoDescarte <=24){ //Azul
                 return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
