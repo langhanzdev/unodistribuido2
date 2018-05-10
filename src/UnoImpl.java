@@ -121,7 +121,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             }
             if(this.partidas[partida].getJogador1().getId() == idJogador){
                 this.partidas[partida].preparaJogo();
-                
+                if(ehPular(this.partidas[partida].getTopoDescarte()) || ehInverter(this.partidas[partida].getTopoDescarte())){
+                    if(this.partidas[partida].getVez() == 1)
+                        this.partidas[partida].setVez(2);
+                    else
+                        this.partidas[partida].setVez(1);
+                }
                 return 1;
             }else if(this.partidas[partida].getJogador2().getId() == idJogador){
                 this.partidas[partida].preparaJogo();

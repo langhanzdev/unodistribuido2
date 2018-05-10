@@ -39,7 +39,9 @@ public class Partida{
             geraBaralho();
             embaralha();
             distribuiCartas();
-            this.descarte[numDescarte] = baralho[--numCartas];
+            do{
+                this.descarte[numDescarte] = baralho[--numCartas];
+            }while(this.descarte[numDescarte] >= 104 && this.descarte[numDescarte] >= 107);
             setVez(1);
         }
         this.temBaralho = true;
