@@ -28,19 +28,19 @@ class UnoClient {
         }
     }
     
-    public void mostraPontos(int pontos, int pontosOponente){
-        
-        System.out.println("Seus pontos: "+pontos);
-        System.out.println("Pontos Oponente: "+pontosOponente);
-        
-    }
+    
+    /**
+     * Inicia o jogo de uno
+     * @throws RemoteException
+     * @throws InterruptedException 
+     */
     public void iniciaJogo() throws RemoteException, InterruptedException{
         System.out.println("Jogo de Uno!");
         registra();
         //Tem partida
         System.out.println("Aguardando partida...");
         int temPartida;
-        do{
+        do{ //Enquanto nao tem partida
             temPartida = uno.temPartida(jogador.getId());
             switch(temPartida){
                 case -2:
@@ -64,6 +64,7 @@ class UnoClient {
             Thread.sleep(2000);
         }while(temPartida != 1 && temPartida != 2);
         
+        //Inicia variaveis de controle
         Scanner entrada = new Scanner (System.in);
         int jogou= -5;
         int ehMinhaVez = 0;
@@ -73,7 +74,9 @@ class UnoClient {
         
         String nomeOponente = uno.obtemOponente(jogador.getId());
         System.out.println("Seu oponente é "+nomeOponente);
-        do{
+        do{ //Enquanto o jogo nao acabou
+            
+            // Mostra variaveis do jogo para o usuario
             System.out.println("---------------------------------------------");
             int nrCartasBaralho = uno.obtemNumCartasBaralho(jogador.getId());
             if(nrCartasBaralho == -2) System.out.println("Ainda não tem oponente!");
@@ -101,6 +104,8 @@ class UnoClient {
             if(cartaMesa.equals("")){
                 System.out.println("Erro ao buscar carta da mesa.");
             }
+            
+            //Se eh coringa
             if(cartaMesa.equals("Cg/*") || cartaMesa.equals("C4/*")){
                 int corAtiva = uno.obtemCorAtiva(jogador.getId());
                 switch(corAtiva){
@@ -123,6 +128,7 @@ class UnoClient {
 
             ehMinhaVez = uno.ehMinhaVez(jogador.getId());
 
+            //Retorno de ehMinha vez
             switch(ehMinhaVez){
                 case -2:
                     System.out.println("erro: ainda não há 2 jogadores registrados na partida.");
@@ -180,9 +186,9 @@ class UnoClient {
 
             if(ehMinhaVez == 1){
                 
-                do{
+                do{//enquanto Jogada invalida
                     
-                    do{
+                    do{//Enquanto opcao invalida
                         if(comprou){
                             System.out.println("Você só pode jogar a carta comprada(0) ou comprar(1)");
                             limiteMax = 1;
@@ -253,6 +259,23 @@ class UnoClient {
         
     }
     
+    /**
+     * Mostra os pontos dos jogadores
+     * @param pontos
+     * @param pontosOponente 
+     */
+    public void mostraPontos(int pontos, int pontosOponente){
+        
+        System.out.println("Seus pontos: "+pontos);
+        System.out.println("Pontos Oponente: "+pontosOponente);
+        
+    }
+    
+    /**
+     * Mensagem de perdeu
+     * @param id
+     * @throws RemoteException 
+     */
     public void msgPerdeuWO(int id) throws RemoteException{
         System.out.println("#####################################");
         System.out.println("Você perdeu por WO!!");
@@ -262,6 +285,10 @@ class UnoClient {
         System.out.println("#####################################");
     }
 
+    /**
+     * Registra novo jogador
+     * @throws RemoteException 
+     */
     public void registra() throws RemoteException{
         
         int id = -1;

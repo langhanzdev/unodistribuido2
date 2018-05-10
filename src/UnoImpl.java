@@ -4,7 +4,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Random;
 
-// Classe remota para o exemplo "Hello, world!"
+// Classe remota para o jogo de Uno distribuido"
 public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
 
     private static final long serialVersionUID = 7896795898928782846L;
@@ -19,93 +19,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         message = msg;
     }
 
-    
-    public int geraIdPartida(){
-        this.idPartidas++;
-        return idPartidas;
-    }
-    
-    public int geraIdJogador(){
-        Random gerador = new Random();
-        return gerador.nextInt(this.nrPartidas*10)+gerador.nextInt(this.nrPartidas*10);
-         
-    }
-    
-    public boolean usuarioCasdastrado(String nome){
-        for(int i=0;i<this.nrPartidas;i++){
-            if(partidas[i] != null){
-                if((partidas[i].getJogador1() != null && partidas[i].getJogador1().getNome().equals(nome)) || (partidas[i].getJogador2() != null && partidas[i].getJogador2().getNome().equals(nome))){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    public int encontraPartida(int idJogador){
-        for(int i=0;i<this.nrPartidas;i++){
-            if(partidas[i] != null){
-                if((partidas[i].getJogador1() != null && partidas[i].getJogador1().getId() == idJogador) || (partidas[i].getJogador2() != null && partidas[i].getJogador2().getId() == idJogador)){
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-    
-    public boolean encontraPartidaLivre(Jogador  j){
-        //Eh o segundo jogador da partida
-        for(int i=0;i<this.nrPartidas;i++){
-            if(partidas[i] != null){
-                if(partidas[i].getJogador2() == null){
-                    partidas[i].setJogador2(j);
-                    return true;
-                }
-            }
-            
-        }
-        
-        //eh o primeiro jogador da partida
-        for(int i=0;i<this.nrPartidas;i++){
-            if(partidas[i] == null){
-           
-                Partida p = new Partida();
-                p.setJogador1(j);
-                p.setId(geraIdPartida());
-                p.setTempoAguardaJogador(System.currentTimeMillis());
-                partidas[i] = p;
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public int identificaJogador(int partida, int idJogador){
-        if(this.partidas[partida].getJogador1() != null){
-            if(this.partidas[partida].getJogador1().getId() == idJogador)
-                return 1;
-        }
-        if(this.partidas[partida].getJogador2() != null){
-            if(this.partidas[partida].getJogador2().getId() == idJogador)
-                return 2;
-        }
-        return 0;
-    }
-
-    @Override
-    public int registraJogador(String nome) throws RemoteException {
-        if(nome ==  null || nome.equals(""))
-            return -3;
-        if(usuarioCasdastrado(nome)) return -1;
-        Jogador jogador = new Jogador();
-        jogador.setNome(nome);
-        jogador.setId(geraIdJogador());
-        if(encontraPartidaLivre(jogador))
-            return jogador.getId();
-        else
-            return -2;
-    }
-
+    /**
+     * Seta partida do jogador como nula
+     * @param idjogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int encerraPartida(int idjogador) throws RemoteException {
         int partida = encontraPartida(idjogador);
@@ -115,7 +34,13 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         }
         return -1;
     }
-
+    
+    /**
+     * Verifica se existe uma partida para o jogador
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int temPartida(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -124,7 +49,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         
         //Tempo aguardando outro jogador entrar
         long t = System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogador();
-        System.out.println("Tempo "+t);
+        
         if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogador() > 120000){               
             return -2;
         }
@@ -152,6 +77,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return -1;
     }
 
+    /**
+     * Obtem nome do oponente
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public String obtemOponente(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -175,7 +106,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     }
     
     
-
+    /**
+     * Verifica se eh a vez do jogador
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int ehMinhaVez(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -185,21 +121,19 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         if(temPartida == 0) return -2; //Não há dois jogadores
         
         if(partida > -1){
-            
 
-            
             int nrJogador = identificaJogador(partida, idJogador);
             
             //Tempo de espera da jogada
             if(nrJogador == 1){
                 if(this.partidas[partida].getVez() == 2){
-                    if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogada2() > 5000){
+                    if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogada2() > 60000){
                         return 5;
                     }
                 }
             }else{
                 if(this.partidas[partida].getVez() == 1){
-                    if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogada1() > 5000){
+                    if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogada1() > 60000){
                         return 5;
                     }
                 }
@@ -243,6 +177,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return -1;
     }
 
+    /**
+     * Obtem numero de cartas do baralho
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int obtemNumCartasBaralho(int idJogador) throws RemoteException {
         if(temPartida(idJogador) == 0) return -2;
@@ -252,6 +192,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return -1;
     }
 
+    /**
+     * Obtem numero de cartas da mao do jogador
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int obtemNumCartas(int idJogador) throws RemoteException {
         if(temPartida(idJogador) == 0) return -2;
@@ -266,6 +212,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return -1;
     }
 
+    /**
+     * Obtem numero de catas da mao do oponente
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int obtemNumCartasOponente(int idJogador) throws RemoteException {
         if(temPartida(idJogador) == 0) return -2;
@@ -280,6 +232,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return -1;
     }
 
+    /**
+     * Retorna as cartas da mao do jogador
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public String mostraMao(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -298,6 +256,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return mao;
     }
 
+    /**
+     * Obtem carta da mesa
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public String obtemCartaMesa(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -309,6 +273,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return "";
     }
 
+    /**
+     * Obtem a cor ativa no momento
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int obtemCorAtiva(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -318,6 +288,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return -1;
     }
 
+    /**
+     * Compra carta para o jogador
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int compraCarta(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -328,6 +304,14 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return -1;
     }
 
+    /**
+     * Joga a carta recebida
+     * @param idJogador
+     * @param indexCarta
+     * @param cor
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int jogaCarta(int idJogador, int indexCarta, int cor) throws RemoteException {
         
@@ -335,9 +319,9 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         int temPartida = temPartida(idJogador);
         
         if(temPartida == -2) return -1;
+        
         int partida = encontraPartida(idJogador);
         int nrJogador = identificaJogador(partida, idJogador);
-        System.out.println("Cor: "+cor);
         
         
         if(temPartida == 0) return -2;
@@ -357,7 +341,8 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             
             int topoDescarte = this.partidas[partida].getTopoDescarte(); 
             
-            System.out.println("carta "+carta+" Topo "+topoDescarte);
+            //Verifica se a cor eh compativel
+            
             if(carta >=0 && carta <=24 && topoDescarte >=0 && topoDescarte <=24){ //Azul
                 mesmaCor = true;
             }else
@@ -371,6 +356,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                 mesmaCor = true;
             }
             
+            //Se eh da mesma cor
             if(mesmaCor){
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 if(ehMais2(carta)){
@@ -390,7 +376,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             
             //Se a carta anterior era coringa
             if(topoDescarte >= 100 && topoDescarte <= 107){
-//                this.partidas[partida].setCorAtiva(cor);
+
                 int corAtiva = this.partidas[partida].getCorAtiva();
                 int corCarta = qualCor(carta);
                 System.out.println("Cor carta "+corCarta+" Cor ativa: "+corAtiva);
@@ -410,27 +396,33 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                     return 0;
             }
             
-            
+            //Se eh carta de ação sobre carta de ação
             if(ehMais2(carta) && ehMais2(topoDescarte)){
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 compraMais2(partida, nrJogador);
                 return retornoJoga;
             }
+            
+            //Se eh carta de ação sobre carta de ação
             if(ehPular(carta) && ehPular(topoDescarte)){
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 pula(partida, nrJogador);
                 return retornoJoga;
             }
 
+            //Se eh carta de ação sobre carta de ação
             if(ehInverter(carta) && ehInverter(topoDescarte)){
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 inverte(partida, nrJogador);
                 return retornoJoga;
             }
             
+            //Se eh carta de ação sobre carta de ação
             if(ehCoringa(carta)){
                 return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
             }
+            
+            //Se eh carta de ação sobre carta de ação
             if(ehMais4(carta)){
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 compraMais2(partida, nrJogador);
@@ -443,6 +435,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                 return retornoJoga;
             }
             
+            // SE NAO EH ACAO E NEM COR IGUAL, TESTA VALORES 
             
             int soma;
             
@@ -478,81 +471,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return 0;
     }
     
-    public boolean ehCoringa(int carta){
-        if(carta >= 100 && carta <= 103)
-            return true;
-        return false;
-    }
-    
-    public boolean ehMais4(int carta){
-        if(carta >= 104 && carta <= 107)
-            return true;
-        return false;
-    }
-    
-    public void compraMais2(int partida, int nrJogador){
-        if(nrJogador == 1){
-            this.partidas[partida].compraCarta(2);
-            this.partidas[partida].compraCarta(2);
-            this.partidas[partida].setVez(1);
-        }else{
-            this.partidas[partida].compraCarta(1);
-            this.partidas[partida].compraCarta(1);
-            this.partidas[partida].setVez(2);
-        }
-    }
-    
-    public void pula(int partida, int nrJogador){
-        if(nrJogador == 1)
-            this.partidas[partida].setVez(1);
-        else
-            this.partidas[partida].setVez(2);
-    }
-    
-    public void inverte(int partida, int nrJogador){
-        if(nrJogador == 1)
-            this.partidas[partida].setVez(1);
-        else
-            this.partidas[partida].setVez(2);
-    }
-    
-    public boolean ehMais2(int carta){
-        if(carta == 23 || carta == 24 || carta == 49 || carta == 48 || carta == 74 || carta == 73 || carta == 98 || carta == 99)
-            return true;
-        return false;
-    }
-    
-    public boolean ehPular(int carta){
-        if(carta == 19 || carta == 20 || carta == 44 || carta == 45 || carta == 60 || carta == 70 || carta == 94 || carta == 95)
-            return true;
-        return false;
-    }
-    
-    public boolean ehInverter(int carta){
-        if(carta == 21 || carta == 22 || carta == 46 || carta == 47 || carta == 71 || carta == 72 || carta == 96 || carta == 97)
-            return true;
-        return false;
-    }
-    
-    public int qualCor(int carta){
-        if(carta >= 0 && carta <= 24)
-            return 0;
-        if(carta >= 25 && carta <= 49)
-            return 1;
-        if(carta >= 50 && carta <= 74)
-            return 2;
-        if(carta >= 75 && carta <= 99)
-            return 3;
-        return -1;
-    }
-    
-    public int inverte(int s){
-        if(s == 1)
-            return -1;
-        else
-            return 1;
-    }
-
+    /**
+     * Obtem pontos do jogador
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int obtemPontos(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -617,6 +541,12 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         }
     }
 
+    /**
+     * Obtem pontos do oponente
+     * @param idJogador
+     * @return
+     * @throws RemoteException 
+     */
     @Override
     public int obtemPontosOponente(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
@@ -682,6 +612,260 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     }
     
     
+    
+    //#### Metodos auxiliares ################################################3
+    
+    /**
+     * Verifica se a carta eh coringa (Cg/*)
+     * @param carta
+     * @return 
+     */
+    public boolean ehCoringa(int carta){
+        if(carta >= 100 && carta <= 103)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Verifica se a carta eh coringa +4 (C4/*)
+     * @param carta
+     * @return 
+     */
+    public boolean ehMais4(int carta){
+        if(carta >= 104 && carta <= 107)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Compra mais duas cartas para o jogador adversario e mantem a vez com o atual
+     * @param partida
+     * @param nrJogador 
+     */
+    public void compraMais2(int partida, int nrJogador){
+        if(nrJogador == 1){
+            this.partidas[partida].compraCarta(2);
+            this.partidas[partida].compraCarta(2);
+            this.partidas[partida].setVez(1);
+        }else{
+            this.partidas[partida].compraCarta(1);
+            this.partidas[partida].compraCarta(1);
+            this.partidas[partida].setVez(2);
+        }
+    }
+    
+    /**
+     * Pula a vez do jogador adversario
+     * @param partida
+     * @param nrJogador 
+     */
+    public void pula(int partida, int nrJogador){
+        if(nrJogador == 1)
+            this.partidas[partida].setVez(1);
+        else
+            this.partidas[partida].setVez(2);
+    }
+    
+    /**
+     * Inverte (pula) vez do jogador
+     * @param partida
+     * @param nrJogador 
+     */
+    public void inverte(int partida, int nrJogador){
+        if(nrJogador == 1)
+            this.partidas[partida].setVez(1);
+        else
+            this.partidas[partida].setVez(2);
+    }
+    
+    /**
+     * Verifica se a carta eh um +2 (+2/Cor)
+     * @param carta
+     * @return 
+     */
+    public boolean ehMais2(int carta){
+        if(carta == 23 || carta == 24 || carta == 49 || carta == 48 || carta == 74 || carta == 73 || carta == 98 || carta == 99)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Verifica se a carta eh pular (Pu/cor)
+     * @param carta
+     * @return 
+     */
+    public boolean ehPular(int carta){
+        if(carta == 19 || carta == 20 || carta == 44 || carta == 45 || carta == 60 || carta == 70 || carta == 94 || carta == 95)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Verifica se a carta eh inverter (In/cor)
+     * @param carta
+     * @return 
+     */
+    public boolean ehInverter(int carta){
+        if(carta == 21 || carta == 22 || carta == 46 || carta == 47 || carta == 71 || carta == 72 || carta == 96 || carta == 97)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Retorna a cor da carta
+     * @param carta
+     * @return 
+     */
+    public int qualCor(int carta){
+        if(carta >= 0 && carta <= 24)
+            return 0;
+        if(carta >= 25 && carta <= 49)
+            return 1;
+        if(carta >= 50 && carta <= 74)
+            return 2;
+        if(carta >= 75 && carta <= 99)
+            return 3;
+        return -1;
+    }
+    
+    /**
+     * Inverte soma para encontrar cartas
+     * @param s
+     * @return 
+     */
+    public int inverte(int s){
+        if(s == 1)
+            return -1;
+        else
+            return 1;
+    }
+
+    /**
+     * Gera id da partida
+     * @return 
+     */
+    public int geraIdPartida(){
+        this.idPartidas++;
+        return idPartidas;
+    }
+    
+    /**
+     * Gera id do jogador
+     * @return 
+     */
+    public int geraIdJogador(){
+        Random gerador = new Random();
+        return gerador.nextInt(this.nrPartidas*10)+gerador.nextInt(this.nrPartidas*10);
+         
+    }
+    
+    /**
+     * Verifica se o usario ja esta cadastrado.
+     * @param nome
+     * @return 
+     */
+    public boolean usuarioCasdastrado(String nome){
+        for(int i=0;i<this.nrPartidas;i++){
+            if(partidas[i] != null){
+                if((partidas[i].getJogador1() != null && partidas[i].getJogador1().getNome().equals(nome)) || (partidas[i].getJogador2() != null && partidas[i].getJogador2().getNome().equals(nome))){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Encontra a partida do jogador
+     * @param idJogador
+     * @return 
+     */
+    public int encontraPartida(int idJogador){
+        for(int i=0;i<this.nrPartidas;i++){
+            if(partidas[i] != null){
+                if((partidas[i].getJogador1() != null && partidas[i].getJogador1().getId() == idJogador) || (partidas[i].getJogador2() != null && partidas[i].getJogador2().getId() == idJogador)){
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Encontra uma partida para o jogador
+     * @param j
+     * @return 
+     */
+    public boolean encontraPartidaLivre(Jogador  j){
+        //Eh o segundo jogador da partida
+        for(int i=0;i<this.nrPartidas;i++){
+            if(partidas[i] != null){
+                if(partidas[i].getJogador2() == null){
+                    partidas[i].setJogador2(j);
+                    return true;
+                }
+            }
+            
+        }
+        
+        //eh o primeiro jogador da partida
+        for(int i=0;i<this.nrPartidas;i++){
+            if(partidas[i] == null){
+           
+                Partida p = new Partida();
+                p.setJogador1(j);
+                p.setId(geraIdPartida());
+                p.setTempoAguardaJogador(System.currentTimeMillis());
+                partidas[i] = p;
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Identifica se o jogadar eh o 1 ou o 2
+     * @param partida
+     * @param idJogador
+     * @return 
+     */
+    public int identificaJogador(int partida, int idJogador){
+        if(this.partidas[partida].getJogador1() != null){
+            if(this.partidas[partida].getJogador1().getId() == idJogador)
+                return 1;
+        }
+        if(this.partidas[partida].getJogador2() != null){
+            if(this.partidas[partida].getJogador2().getId() == idJogador)
+                return 2;
+        }
+        return 0;
+    }
+
+    /**
+     * Registra novo jogador
+     * @param nome
+     * @return
+     * @throws RemoteException 
+     */
+    @Override
+    public int registraJogador(String nome) throws RemoteException {
+        if(nome ==  null || nome.equals(""))
+            return -3;
+        if(usuarioCasdastrado(nome)) return -1;
+        Jogador jogador = new Jogador();
+        jogador.setNome(nome);
+        jogador.setId(geraIdJogador());
+        if(encontraPartidaLivre(jogador))
+            return jogador.getId();
+        else
+            return -2;
+    }
+    
+    /**
+     * Dicionario de cartas
+     * @param carta
+     * @return 
+     */
     public String dicionarioCartas(int carta) {
 
         if (carta < 0 || carta > 107) {
