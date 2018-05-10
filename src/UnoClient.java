@@ -91,19 +91,19 @@ class UnoClient {
             if(cartaMesa.equals("")){
                 System.out.println("Erro ao buscar carta da mesa.");
             }
-            if(cartaMesa.equals("Cg/*")){
+            if(cartaMesa.equals("Cg/*") || cartaMesa.equals("C4/*")){
                 int corAtiva = uno.obtemCorAtiva(jogador.getId());
                 switch(corAtiva){
-                    case 1:
+                    case 0:
                         System.out.println("Cor ativa: Azul");
                         break;
-                    case 2:
+                    case 1:
                         System.out.println("Cor ativa: Amarelo");
                         break;
-                    case 3:
+                    case 2:
                         System.out.println("Cor ativa: Verde");
                         break;
-                    case 4:
+                    case 3:
                         System.out.println("Cor ativa: Vermelho");
                         break;
                 }
@@ -177,10 +177,14 @@ class UnoClient {
                             comprou = true;
                         }
                     }else{
-                        
-                        String[] splitMao = mao.split("|");
+                        if(comprou){
+                            opcao = nrCartas-1;
+                        }
+                        String[] splitMao = mao.split("\\|");
                         int cor = 0;
-                        if(splitMao[opcao].equals("Cg/*") || splitMao[opcao].equals("C4/*")){
+                        System.out.println("asdkasopdkasdsad asdas" +splitMao.length);
+                        System.out.println("Coringa "+splitMao[opcao] );
+                        if(splitMao[opcao+1].equals("Cg/*") || splitMao[opcao+1].equals("C4/*")){
                             do{
                                 System.out.println("Escola uma cor: ");
                                 System.out.println("0 - Azul ");
@@ -193,9 +197,7 @@ class UnoClient {
                             }while(cor < 0 || cor > 3);
                         }
 
-                        if(comprou){
-                            opcao = nrCartas-1;
-                        }
+                        
                         jogou = uno.jogaCarta(jogador.getId(), opcao, cor);
                         System.out.println("Joga carta "+jogou);
                         if(jogou == 0){

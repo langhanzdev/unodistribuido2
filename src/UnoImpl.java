@@ -300,13 +300,9 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             
             int topoDescarte = this.partidas[partida].getTopoDescarte();
             
-            //Se a carta anterior era coringa
-            if(topoDescarte >= 100 && topoDescarte <= 107){
-                int corAtiva = this.partidas[partida].getCorAtiva();
-                int corCarta = qualCor(carta);
-                if(corAtiva != corCarta && !ehCoringa(carta) && !ehMais4(carta))
-                    return 0;
-            }
+            
+            
+            
             
             System.out.println("carta "+carta+" Topo "+topoDescarte);
             if(carta >=0 && carta <=24 && topoDescarte >=0 && topoDescarte <=24){ //Azul
@@ -339,6 +335,28 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                 return retornoJoga;
             }
             
+            //Se a carta anterior era coringa
+            if(topoDescarte >= 100 && topoDescarte <= 107){
+//                this.partidas[partida].setCorAtiva(cor);
+                int corAtiva = this.partidas[partida].getCorAtiva();
+                int corCarta = qualCor(carta);
+                System.out.println("Cor carta "+corCarta+" Cor ativa: "+corAtiva);
+                if(corCarta == corAtiva){
+                    int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                    if(ehMais2(carta))
+                        compraMais2(partida, nrJogador);
+                    if(ehPular(carta))
+                        pula(partida, nrJogador);
+                    if(ehInverter(carta))
+                        inverte(partida, nrJogador);
+                    
+                    return retornoJoga;
+                }
+                
+                if(corAtiva != corCarta && !ehCoringa(carta) && !ehMais4(carta))
+                    return 0;
+            }
+            
             
             if(ehMais2(carta) && ehMais2(topoDescarte)){
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
@@ -364,6 +382,11 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 compraMais2(partida, nrJogador);
                 compraMais2(partida, nrJogador);
+                if(nrJogador == 1){
+                    this.partidas[partida].setVez(2);
+                }else{
+                    this.partidas[partida].setVez(1);
+                }
                 return retornoJoga;
             }
             
