@@ -27,7 +27,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     
     public int geraIdJogador(){
         Random gerador = new Random();
-        return gerador.nextInt(this.nrPartidas*10);
+        return gerador.nextInt(this.nrPartidas*10)+gerador.nextInt(this.nrPartidas*10);
          
     }
     
@@ -54,22 +54,26 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     }
     
     public boolean encontraPartidaLivre(Jogador  j){
+        //Eh o segundo jogador da partida
         for(int i=0;i<this.nrPartidas;i++){
             if(partidas[i] != null){
                 if(partidas[i].getJogador2() == null){
-                    partidas[i].setJogador2(j);System.out.println("registra jogador 2 "+j.getNome()+" "+i);
+                    partidas[i].setJogador2(j);
                     return true;
                 }
             }
             
         }
+        
+        //eh o primeiro jogador da partida
         for(int i=0;i<this.nrPartidas;i++){
             if(partidas[i] == null){
            
                 Partida p = new Partida();
                 p.setJogador1(j);
                 p.setId(geraIdPartida());
-                partidas[i] = p;System.out.println("registra jogador 1 "+j.getNome()+" "+i);
+                p.setTempoAguardaJogador(System.currentTimeMillis());
+                partidas[i] = p;
                 return true;
             }
         }
@@ -115,6 +119,16 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     @Override
     public int temPartida(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
+        
+        if(partida == -1) return -2;
+        
+        //Tempo aguardando outro jogador entrar
+        long t = System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogador();
+        System.out.println("Tempo "+t);
+        if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogador() > 120000){               
+            return -2;
+        }
+        
         if(partida > -1){
             if(this.partidas[partida].getJogador1() == null || this.partidas[partida].getJogador2() == null){
                 return 0;
@@ -165,11 +179,34 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     @Override
     public int ehMinhaVez(int idJogador) throws RemoteException {
         int partida = encontraPartida(idJogador);
-        if(temPartida(idJogador) == 0) return -2; //Não há dois jogadores
+        int temPartida = temPartida(idJogador);
+        
+        if(temPartida == -2) return 5; //Vencedor por WO
+        if(temPartida == 0) return -2; //Não há dois jogadores
         
         if(partida > -1){
             
+
+            
             int nrJogador = identificaJogador(partida, idJogador);
+            
+            //Tempo de espera da jogada
+            if(nrJogador == 1){
+                if(this.partidas[partida].getVez() == 2){
+                    if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogada2() > 5000){
+                        return 5;
+                    }
+                }
+            }else{
+                if(this.partidas[partida].getVez() == 1){
+                    if(System.currentTimeMillis()-this.partidas[partida].getTempoAguardaJogada1() > 5000){
+                        return 5;
+                    }
+                }
+            }
+            
+            
+            
             if(nrJogador == 1){ //Jogador 1 venceu
                 if(this.partidas[partida].getJogador1().getCartas().isEmpty())
                     return 2;
@@ -295,10 +332,15 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     public int jogaCarta(int idJogador, int indexCarta, int cor) throws RemoteException {
         
         int carta;
+        int temPartida = temPartida(idJogador);
+        
+        if(temPartida == -2) return -1;
         int partida = encontraPartida(idJogador);
         int nrJogador = identificaJogador(partida, idJogador);
         System.out.println("Cor: "+cor);
-        if(temPartida(idJogador) == 0) return -2;
+        
+        
+        if(temPartida == 0) return -2;
         if(cor < 0 || cor > 3) return -3;
         
         if(this.partidas[partida].getVez() != nrJogador) return -4;                
@@ -313,11 +355,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         
         if(partida > -1){
             
-            int topoDescarte = this.partidas[partida].getTopoDescarte();
-            
-            
-            
-            
+            int topoDescarte = this.partidas[partida].getTopoDescarte(); 
             
             System.out.println("carta "+carta+" Topo "+topoDescarte);
             if(carta >=0 && carta <=24 && topoDescarte >=0 && topoDescarte <=24){ //Azul

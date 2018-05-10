@@ -19,6 +19,9 @@ public class Partida{
     private boolean temBaralho;
     private int pontosJogador1;
     private int pontosJogador2;
+    private long tempoAguardaJogador;
+    private long tempoAguardaJogada1;
+    private long tempoAguardaJogada2;
 
     public Partida() {
         this.numCartas = 108;
@@ -32,7 +35,7 @@ public class Partida{
     }
     
     public void distribuiCartas(){
-        for(int i=0;i < 2;i++){
+        for(int i=0;i < 7;i++){
             compraCarta(1);
             compraCarta(2);
         }
@@ -136,6 +139,30 @@ public class Partida{
         this.descarte = descarte;
     }
 
+    public long getTempoAguardaJogador() {
+        return tempoAguardaJogador;
+    }
+
+    public void setTempoAguardaJogador(long tempoAguardaJogador) {
+        this.tempoAguardaJogador = tempoAguardaJogador;
+    }
+
+    public long getTempoAguardaJogada1() {
+        return tempoAguardaJogada1;
+    }
+
+    public void setTempoAguardaJogada1(long tempoAguardaJogada1) {
+        this.tempoAguardaJogada1 = tempoAguardaJogada1;
+    }
+
+    public long getTempoAguardaJogada2() {
+        return tempoAguardaJogada2;
+    }
+
+    public void setTempoAguardaJogada2(long tempoAguardaJogada2) {
+        this.tempoAguardaJogada2 = tempoAguardaJogada2;
+    }
+
     
     
 //    public int topoDescarte(){
@@ -166,6 +193,8 @@ public class Partida{
     }
 
     public void setVez(int vez) {
+        this.tempoAguardaJogada1 = System.currentTimeMillis();
+        this.tempoAguardaJogada2 = System.currentTimeMillis();
         this.vez = vez;
     }
 

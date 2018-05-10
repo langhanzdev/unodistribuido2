@@ -46,7 +46,8 @@ class UnoClient {
                 case -2:
                     System.out.println("Tempo de espera esgotado!");
                     uno.encerraPartida(jogador.getId());
-                    break;
+                    return;
+                    
                 case -1:
                     System.out.println("Erro ao buscar partida.");
                     break;
@@ -166,14 +167,10 @@ class UnoClient {
                     pontosOponente = uno.obtemPontosOponente(jogador.getId());
                     mostraPontos(pontos, pontosOponente);
                     System.out.println("************************************");
+                    uno.encerraPartida(jogador.getId());
                     break;
                 case 6:
-                    System.out.println("#####################################");
-                    System.out.println("Você perdeu por WO!!");
-                    pontos = uno.obtemPontos(jogador.getId());
-                    pontosOponente = uno.obtemPontosOponente(jogador.getId());
-                    mostraPontos(pontos, pontosOponente);
-                    System.out.println("#####################################");
+                    msgPerdeuWO(jogador.getId());
                     break;
             }
 
@@ -230,9 +227,14 @@ class UnoClient {
                             }while(cor < 0 || cor > 3);
                         }
 
-                        
+                        if(uno.ehMinhaVez(jogador.getId()) == 6){
+                            msgPerdeuWO(jogador.getId());
+                            return;
+                        }
                         jogou = uno.jogaCarta(jogador.getId(), opcao, cor);
-                        System.out.println("Joga carta "+jogou);
+                        if(jogou == -1){
+                            System.out.println("");
+                        } 
                         if(jogou == 0){
                             System.out.println("Jogada inválida: carta inválida.");
                         }
@@ -249,6 +251,15 @@ class UnoClient {
         uno.encerraPartida(jogador.getId());
         System.out.println("Fim.");
         
+    }
+    
+    public void msgPerdeuWO(int id) throws RemoteException{
+        System.out.println("#####################################");
+        System.out.println("Você perdeu por WO!!");
+        int pontos = uno.obtemPontos(id);
+        int pontosOponente = uno.obtemPontosOponente(id);
+        mostraPontos(pontos, pontosOponente);
+        System.out.println("#####################################");
     }
 
     public void registra() throws RemoteException{
