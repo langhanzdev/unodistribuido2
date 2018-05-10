@@ -163,7 +163,25 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         if(temPartida(idJogador) == 0) return -2; //Não há dois jogadores
         
         if(partida > -1){
+            
             int nrJogador = identificaJogador(partida, idJogador);
+            if(nrJogador == 1){ //Jogador 1 venceu
+                if(this.partidas[partida].getJogador1().getCartas().isEmpty())
+                    return 2;
+                if(this.partidas[partida].getJogador2().getCartas().isEmpty())
+                    return 3;
+            }else{ //Jogador 2 venceu
+                if(this.partidas[partida].getJogador2().getCartas().isEmpty())
+                    return 2;
+                if(this.partidas[partida].getJogador1().getCartas().isEmpty())
+                    return 3;
+            }
+            
+            // Empate
+            if(this.partidas[partida].getNumCartas() == 0)
+                return 4;
+            
+            
             if(nrJogador == this.partidas[partida].getVez()){
                 return 1; //Sim
             }else{
@@ -268,7 +286,7 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         if(temPartida(idJogador) == 0) return -2;
         if(cor < 0 || cor > 3) return -3;
         
-        if(this.partidas[partida].getVez() != nrJogador) return -4;
+        if(this.partidas[partida].getVez() != nrJogador) return -4;                
         
         if(nrJogador == 1){
             carta = this.partidas[partida].getJogador1().getCartas().get(indexCarta);
@@ -281,6 +299,14 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         if(partida > -1){
             
             int topoDescarte = this.partidas[partida].getTopoDescarte();
+            
+            //Se a carta anterior era coringa
+            if(topoDescarte >= 100 && topoDescarte <= 107){
+                int corAtiva = this.partidas[partida].getCorAtiva();
+                int corCarta = qualCor(carta);
+                if(corAtiva != corCarta && !ehCoringa(carta) && !ehMais4(carta))
+                    return 0;
+            }
             
             System.out.println("carta "+carta+" Topo "+topoDescarte);
             if(carta >=0 && carta <=24 && topoDescarte >=0 && topoDescarte <=24){ //Azul
@@ -331,6 +357,16 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                 return retornoJoga;
             }
             
+            if(ehCoringa(carta)){
+                return this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+            }
+            if(ehMais4(carta)){
+                int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                compraMais2(partida, nrJogador);
+                compraMais2(partida, nrJogador);
+                return retornoJoga;
+            }
+            
             
             int soma;
             
@@ -364,6 +400,18 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
            
         }
         return 0;
+    }
+    
+    public boolean ehCoringa(int carta){
+        if(carta >= 100 && carta <= 103)
+            return true;
+        return false;
+    }
+    
+    public boolean ehMais4(int carta){
+        if(carta >= 104 && carta <= 107)
+            return true;
+        return false;
     }
     
     public void compraMais2(int partida, int nrJogador){
@@ -408,6 +456,18 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         if(carta == 21 || carta == 22 || carta == 46 || carta == 47 || carta == 71 || carta == 72 || carta == 96 || carta == 97)
             return true;
         return false;
+    }
+    
+    public int qualCor(int carta){
+        if(carta >= 0 && carta <= 24)
+            return 0;
+        if(carta >= 25 && carta <= 49)
+            return 1;
+        if(carta >= 50 && carta <= 74)
+            return 2;
+        if(carta >= 75 && carta <= 99)
+            return 3;
+        return -1;
     }
     
     public int inverte(int s){

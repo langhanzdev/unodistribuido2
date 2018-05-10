@@ -91,6 +91,24 @@ class UnoClient {
             if(cartaMesa.equals("")){
                 System.out.println("Erro ao buscar carta da mesa.");
             }
+            if(cartaMesa.equals("Cg/*")){
+                int corAtiva = uno.obtemCorAtiva(jogador.getId());
+                switch(corAtiva){
+                    case 1:
+                        System.out.println("Cor ativa: Azul");
+                        break;
+                    case 2:
+                        System.out.println("Cor ativa: Amarelo");
+                        break;
+                    case 3:
+                        System.out.println("Cor ativa: Verde");
+                        break;
+                    case 4:
+                        System.out.println("Cor ativa: Vermelho");
+                        break;
+                }
+            }
+            
             System.out.println("Mesa: "+cartaMesa);
 
             ehMinhaVez = uno.ehMinhaVez(jogador.getId());
