@@ -27,6 +27,13 @@ class UnoClient {
             e.printStackTrace();
         }
     }
+    
+    public void mostraPontos(int pontos, int pontosOponente){
+        
+        System.out.println("Seus pontos: "+pontos);
+        System.out.println("Pontos Oponente: "+pontosOponente);
+        
+    }
     public void iniciaJogo() throws RemoteException, InterruptedException{
         System.out.println("Jogo de Uno!");
         registra();
@@ -60,6 +67,8 @@ class UnoClient {
         int jogou= -5;
         int ehMinhaVez = 0;
         boolean comprou = false;
+        int pontos;
+        int pontosOponente;
         
         String nomeOponente = uno.obtemOponente(jogador.getId());
         System.out.println("Seu oponente é "+nomeOponente);
@@ -85,7 +94,7 @@ class UnoClient {
             if(mao.equals(""))
                 System.out.println("Erro ao buscar cartas da mão.");
             else
-                System.out.println("Suas mão: "+mao);
+                System.out.println("Sua mão: "+mao);
 
             String cartaMesa = uno.obtemCartaMesa(jogador.getId());
             if(cartaMesa.equals("")){
@@ -127,19 +136,44 @@ class UnoClient {
                     System.out.println("É a sua vez.");
                     break;
                 case 2:
+                    System.out.println("************************************");
                     System.out.println("Você ganhou!!!");
+                    pontos = uno.obtemPontos(jogador.getId());
+                    pontosOponente = uno.obtemPontosOponente(jogador.getId());
+                    mostraPontos(pontos, pontosOponente);
+                    System.out.println("*************************************");
                     break;
                 case 3:
+                    System.out.println("#####################################");
                     System.out.println("Você perdeu.");
+                    pontos = uno.obtemPontos(jogador.getId());
+                    pontosOponente = uno.obtemPontosOponente(jogador.getId());
+                    mostraPontos(pontos, pontosOponente);
+                    System.out.println("#####################################");
                     break;
                 case 4:
+                    System.out.println("#####################################");
                     System.out.println("Houve empate.");
+                    pontos = uno.obtemPontos(jogador.getId());
+                    pontosOponente = uno.obtemPontosOponente(jogador.getId());
+                    mostraPontos(pontos, pontosOponente);
+                    System.out.println("#####################################");
                     break;
                 case 5:
+                    System.out.println("************************************");
                     System.out.println("Você venceu por WO!!");
+                    pontos = uno.obtemPontos(jogador.getId());
+                    pontosOponente = uno.obtemPontosOponente(jogador.getId());
+                    mostraPontos(pontos, pontosOponente);
+                    System.out.println("************************************");
                     break;
                 case 6:
+                    System.out.println("#####################################");
                     System.out.println("Você perdeu por WO!!");
+                    pontos = uno.obtemPontos(jogador.getId());
+                    pontosOponente = uno.obtemPontosOponente(jogador.getId());
+                    mostraPontos(pontos, pontosOponente);
+                    System.out.println("#####################################");
                     break;
             }
 
@@ -182,8 +216,7 @@ class UnoClient {
                         }
                         String[] splitMao = mao.split("\\|");
                         int cor = 0;
-                        System.out.println("asdkasopdkasdsad asdas" +splitMao.length);
-                        System.out.println("Coringa "+splitMao[opcao] );
+                        
                         if(splitMao[opcao+1].equals("Cg/*") || splitMao[opcao+1].equals("C4/*")){
                             do{
                                 System.out.println("Escola uma cor: ");

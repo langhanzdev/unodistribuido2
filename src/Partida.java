@@ -17,6 +17,8 @@ public class Partida{
     private int id;
     private Random gerador;
     private boolean temBaralho;
+    private int pontosJogador1;
+    private int pontosJogador2;
 
     public Partida() {
         this.numCartas = 108;
@@ -25,10 +27,12 @@ public class Partida{
         this.descarte = new int[this.totalCartas];
         this.numDescarte = 0;
         this.temBaralho = false;
+        this.pontosJogador1 = 0;
+        this.pontosJogador2 = 0;
     }
     
     public void distribuiCartas(){
-        for(int i=0;i<7;i++){
+        for(int i=0;i < 2;i++){
             compraCarta(1);
             compraCarta(2);
         }
@@ -171,6 +175,30 @@ public class Partida{
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getPontosJogador1() {
+        return pontosJogador1;
+    }
+
+    public void setPontosJogador1(int pontosJogador1) {
+        this.pontosJogador1 = pontosJogador1;
+    }
+    
+    public void somaPontosJogador1(int pontosJogador1) {
+        this.pontosJogador1 += pontosJogador1;
+    }
+
+    public int getPontosJogador2() {
+        return pontosJogador2;
+    }
+
+    public void setPontosJogador2(int pontosJogador2) {
+        this.pontosJogador2 = pontosJogador2;
+    }
+    
+    public void somaPontosJogador2(int pontosJogador2) {
+        this.pontosJogador2 += pontosJogador2;
     }
     
     public Jogador getJogador1() {

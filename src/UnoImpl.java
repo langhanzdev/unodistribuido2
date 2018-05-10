@@ -182,9 +182,19 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
                     return 3;
             }
             
-            // Empate
-            if(this.partidas[partida].getNumCartas() == 0)
-                return 4;
+            //Acabou baralho
+            if(this.partidas[partida].getNumCartas() == 0){
+                // Empate
+                if(obtemPontos(idJogador) == obtemPontosOponente(idJogador))
+                    return 4;
+                
+                //Pontos do jogador é maior que do oponente
+                if(obtemPontos(idJogador) > obtemPontosOponente(idJogador)){
+                    return 2; // venceu
+                }else{
+                    return 3; // perdeu
+                }
+            }
             
             
             if(nrJogador == this.partidas[partida].getVez()){
@@ -506,13 +516,131 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
     }
 
     @Override
-    public int obtemPontos(int id) throws RemoteException {
-        return -1;
+    public int obtemPontos(int idJogador) throws RemoteException {
+        int partida = encontraPartida(idJogador);
+        
+        if(partida == -1) return -1;
+        if(temPartida(idJogador) == -1) return -2; 
+        
+        int nrJogador = identificaJogador(partida, idJogador);
+        int pontos = 0;
+        
+        ArrayList<Integer> mao;
+        if(nrJogador == 1){
+            mao = this.partidas[partida].getJogador2().getCartas();
+        }else
+            mao = this.partidas[partida].getJogador1().getCartas();
+        
+        
+        for(Integer carta:mao){
+            if(ehMais2(carta) || ehInverter(carta) || ehPular(carta)){
+                pontos += 20;
+                continue;
+            }
+            if(ehCoringa(carta) || ehMais4(carta)){
+                pontos += 50;
+                continue;
+            }
+            
+            if(carta == 0 || carta == 25 || carta == 50 || carta == 75){
+                continue;
+            }
+            
+            int cor = qualCor(carta);
+            int cartaAux = 1;
+            
+            switch(cor){
+                case 0:
+                    cartaAux = carta;
+                    break;
+                case 1:
+                    cartaAux = carta-25;
+                    break;
+                case 2:
+                    cartaAux = carta-50;
+                    break;
+                case 3:
+                    cartaAux = carta-75;
+                    break;
+            }
+            
+            if(cartaAux%2 == 0){
+                pontos += (cartaAux/2);
+            }else{
+                pontos += (cartaAux/2)+1;
+            }
+        }
+        if(nrJogador == 1){
+            this.partidas[partida].setPontosJogador1(pontos);
+            return this.partidas[partida].getPontosJogador1();
+        }else{
+            this.partidas[partida].setPontosJogador2(pontos);
+            return this.partidas[partida].getPontosJogador2();
+        }
     }
 
     @Override
-    public int obtemPontosOponente(int id) throws RemoteException {
-        return -1;
+    public int obtemPontosOponente(int idJogador) throws RemoteException {
+        int partida = encontraPartida(idJogador);
+        
+        if(partida == -1) return -1;
+        if(temPartida(idJogador) == -1) return -2; 
+        
+        int nrJogador = identificaJogador(partida, idJogador);
+        int pontos = 0;
+        
+        ArrayList<Integer> mao;
+        if(nrJogador == 2){
+            mao = this.partidas[partida].getJogador2().getCartas();
+        }else
+            mao = this.partidas[partida].getJogador1().getCartas();
+        
+        
+        for(Integer carta:mao){
+            if(ehMais2(carta) || ehInverter(carta) || ehPular(carta)){
+                pontos += 20;
+                continue;
+            }
+            if(ehCoringa(carta) || ehMais4(carta)){
+                pontos += 50;
+                continue;
+            }
+            
+            if(carta == 0 || carta == 25 || carta == 50 || carta == 75){
+                continue;
+            }
+            
+            int cor = qualCor(carta);
+            int cartaAux = 1;
+            
+            switch(cor){
+                case 0:
+                    cartaAux = carta;
+                    break;
+                case 1:
+                    cartaAux = carta-25;
+                    break;
+                case 2:
+                    cartaAux = carta-50;
+                    break;
+                case 3:
+                    cartaAux = carta-75;
+                    break;
+            }
+            
+            if(cartaAux%2 == 0){
+                pontos += (cartaAux/2);
+            }else{
+                pontos += (cartaAux/2)+1;
+            }
+        }
+        if(nrJogador == 2){
+            this.partidas[partida].setPontosJogador1(pontos);
+            return this.partidas[partida].getPontosJogador1();
+        }else{
+            this.partidas[partida].setPontosJogador2(pontos);
+            return this.partidas[partida].getPontosJogador2();
+        }
     }
     
     
