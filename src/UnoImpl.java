@@ -299,18 +299,38 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
             if(mesmaCor){
                 int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
                 if(ehMais2(carta)){
-                    if(nrJogador == 1){
-                        this.partidas[partida].compraCarta(2);
-                        this.partidas[partida].compraCarta(2);
-                        this.partidas[partida].setVez(1);
-                    }else{
-                        this.partidas[partida].compraCarta(1);
-                        this.partidas[partida].compraCarta(1);
-                        this.partidas[partida].setVez(2);
-                    }
+                    compraMais2(partida, nrJogador);
                 }
+                
+                if(ehPular(carta)){
+                    inverte(partida, nrJogador);
+                }
+                
+                if(ehInverter(carta)){
+                    pula(partida, nrJogador);
+                }
+                
                 return retornoJoga;
             }
+            
+            
+            if(ehMais2(carta) && ehMais2(topoDescarte)){
+                int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                compraMais2(partida, nrJogador);
+                return retornoJoga;
+            }
+            if(ehPular(carta) && ehPular(topoDescarte)){
+                int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                pula(partida, nrJogador);
+                return retornoJoga;
+            }
+
+            if(ehInverter(carta) && ehInverter(topoDescarte)){
+                int retornoJoga = this.partidas[partida].jogaCarta(indexCarta, cor, nrJogador);
+                inverte(partida, nrJogador);
+                return retornoJoga;
+            }
+            
             
             int soma;
             
@@ -346,8 +366,46 @@ public class UnoImpl extends UnicastRemoteObject implements UnoInterface {
         return 0;
     }
     
+    public void compraMais2(int partida, int nrJogador){
+        if(nrJogador == 1){
+            this.partidas[partida].compraCarta(2);
+            this.partidas[partida].compraCarta(2);
+            this.partidas[partida].setVez(1);
+        }else{
+            this.partidas[partida].compraCarta(1);
+            this.partidas[partida].compraCarta(1);
+            this.partidas[partida].setVez(2);
+        }
+    }
+    
+    public void pula(int partida, int nrJogador){
+        if(nrJogador == 1)
+            this.partidas[partida].setVez(1);
+        else
+            this.partidas[partida].setVez(2);
+    }
+    
+    public void inverte(int partida, int nrJogador){
+        if(nrJogador == 1)
+            this.partidas[partida].setVez(1);
+        else
+            this.partidas[partida].setVez(2);
+    }
+    
     public boolean ehMais2(int carta){
         if(carta == 23 || carta == 24 || carta == 49 || carta == 48 || carta == 74 || carta == 73 || carta == 98 || carta == 99)
+            return true;
+        return false;
+    }
+    
+    public boolean ehPular(int carta){
+        if(carta == 19 || carta == 20 || carta == 44 || carta == 45 || carta == 60 || carta == 70 || carta == 94 || carta == 95)
+            return true;
+        return false;
+    }
+    
+    public boolean ehInverter(int carta){
+        if(carta == 21 || carta == 22 || carta == 46 || carta == 47 || carta == 71 || carta == 72 || carta == 96 || carta == 97)
             return true;
         return false;
     }
